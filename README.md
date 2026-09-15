@@ -1,3 +1,12 @@
+# Running code
+To run the unit tests, do the following:
+1. cmake --preset=default
+2. cd buildVCPkg
+3. cmake --build .
+4. ctest
+
+# OLD README
+
 This project uses CMake and vcpkg for managing C++ dependencies. It serves as a simple example to test your build setup before we get into more complicted code.
 
 ## Building Using CMake Presets
@@ -25,34 +34,6 @@ Your executables will then be in the build folder. They may be in sub-folders de
 ## Development Environment Setup
 
 Before you get too deep into this, you will need some tools, depending on your operating system and hardware. To build this, you do need some development tools for C++. The following sections will help with each of your specific environments.  Minimally, you need a terminal, a good C++ editor, a git command line client, and of course a C++ compiler toolchain.
-
-### Linux
-
-The following command in Ubuntu (or related) Linux will get you most of what you might
-
-```
-sudo apt update
-sudo apt install build-essential cmake git g++ pkg-config libgl-dev libglu-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev 
-```
-
-### macOS
-
-On macOS, you'll will need to get Apple's Xcode development environment and IDE installed. It's on the AppStore.
-
-After this, you will want to install Brew:
-
-```
-https://brew.sh/
-```
-
-Brew is a package installer for mac os that works well.  You can install pretty much any package with Brew that are available on Linux machines.
-
-```
-brew install cmake
-```
-
-will get you initially started.
-
 
 ### Windows
 
@@ -100,29 +81,3 @@ VCPKG_ROOT = "C:\path\to\vcpkg"
 Then, make sure the VCPKG_ROOT is also in your user Path variable.  You should be able to just add another folder path to the VCPKG_ROOT location.
 
 You will need to quit your Powershell (or git-bash) after this and bring up a new window so the PATH variable information gets propoated.
-
-
-### TLDR; On Linux and macOS
-
-Using a terminal, change directories to where you store your development files. Then, clone vcpkg, as shown below:
-
-```
-git clone https://github.com/microsoft/vcpkg.git
-cd vcpkg
-./bootstrap-vcpkg.sh
-```
-
-Next, you will need to create the VCPKG_ROOT environment variable to point to the location of the vcpkg local repository on your system. You should also add the vcpkg root to your PATH variable. On Linux, you will need to determine which shell environment you use.  For bash, you would edit the ~/.bashrc file, and modify the PATH variable a bit, as shown below:
-
-```
-export VCPKG_ROOT=/home/willemsn/dev/vcpkg
-export PATH="$PATH":"$VCPKG_ROOT"
-```
-
-The instructions are similar for macOS. Determine which shell you use (typically zsh), and then add similar lines to the ~/.zprofile file.
-
-Then, when you restart your terminals, you should be able to run the vcpkg program:
-```
-vcpkg
-```
-
