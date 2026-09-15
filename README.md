@@ -6,7 +6,7 @@ To run the unit tests, do the following:
 4. ctest
 
 
-# OLD READ ME
+# OLD README
 
 This project uses CMake and vcpkg for managing C++ dependencies. It serves as a simple example to test your build setup before we get into more complicted code.
 
