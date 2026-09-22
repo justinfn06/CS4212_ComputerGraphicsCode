@@ -19,8 +19,7 @@ include(Catch)
 # step, we iterate over all the elements within the ${UTESTS} set to
 # compile into an executable.
 # 
-set(UTESTS 
-  utest_Vec3)
+set(UTESTS utest_ray)
 
 # 
 # For each of the executables named in ${UTESTS}, compile them into a
