@@ -8,11 +8,10 @@ int main() {
     const int image_height = 200;
 
     const point3 camera_position(0, 0, 0);
-    const point3 view_direction(1, 3, 5);
-
+    const point3 view_direction(.1, .1, .1);
     const double image_plane_width = 2.0;
     const double image_plane_height = 2.0;
-    const double focal_length = 1.5;
+    const double focal_length = .25;
 
     PerspectiveCamera camera(
         camera_position,
