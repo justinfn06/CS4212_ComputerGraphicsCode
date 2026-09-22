@@ -1,9 +1,16 @@
 # Running code
 To run the unit tests, do the following:
-1. cmake --preset=default
-2. cd buildVCPkg
+1. cd buildVCPkg
+2. cmake --preset=default ..
 3. cmake --build .
 4. ctest
+
+To see the image, do the following:
+1. cd buildVCPkg
+2. cmake --preset=default ..
+3. cmake --build .
+4. .\src\Debug\mainCode.exe
+5. Output image is named "rendered_scene.png" in "buildVCPkg"
 
 
 # OLD README
