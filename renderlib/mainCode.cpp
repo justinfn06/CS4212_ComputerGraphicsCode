@@ -1,6 +1,7 @@
 #include "camera.h"
 #include "Framebuffer.h"
 #include "sphere.h"
+#include "triangle.h"
 
 #include <iostream>
 
@@ -28,16 +29,22 @@ int main() {
     Sphere big_sphere(point3(0, 0, -3), 1.5);
     Sphere medium_sphere(point3(0, 0, -3), 1);
     Sphere small_sphere(point3(0, 0, -3), 0.5);
+    Triangle triangle(point3(-1, -1, -2), point3(1, -1, -2), point3(0, 1, -2));
+    
 
     const color red(1.0, 0.0, 0.0);
     const color white(1.0, 1.0, 1.0);
+    const color green(0.0, 1.0, 0.0);
     const color background_color(1.0, 1.0, 1.0); // white background
 
     for (int j = 0; j < image_height; ++j) {
         for (int i = 0; i < image_width; ++i) {
             ray r = camera.generateRay(i, j);
             
-            if (small_sphere.intersect(r)) {
+            if (triangle.intersect(r)) {
+                fb.setPixelColor(i, j, green);
+            }
+            else if (small_sphere.intersect(r)) {
                 fb.setPixelColor(i, j, red);
             }
             else if (medium_sphere.intersect(r)) {
