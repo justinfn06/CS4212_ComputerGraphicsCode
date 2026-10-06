@@ -25,17 +25,26 @@ int main() {
 
     Framebuffer fb(image_width, image_height);
 
-    Sphere sphere(point3(0, 0, -3), 1.5);
+    Sphere big_sphere(point3(0, 0, -3), 1.5);
+    Sphere medium_sphere(point3(0, 0, -3), 1);
+    Sphere small_sphere(point3(0, 0, -3), 0.5);
 
-    const color sphere_color(1.0, 0.0, 0.0); // red sphere
+    const color red(1.0, 0.0, 0.0);
+    const color white(1.0, 1.0, 1.0);
     const color background_color(1.0, 1.0, 1.0); // white background
 
     for (int j = 0; j < image_height; ++j) {
         for (int i = 0; i < image_width; ++i) {
             ray r = camera.generateRay(i, j);
             
-            if (sphere.intersect(r)) {
-                fb.setPixelColor(i, j, sphere_color);
+            if (small_sphere.intersect(r)) {
+                fb.setPixelColor(i, j, red);
+            }
+            else if (medium_sphere.intersect(r)) {
+                fb.setPixelColor(i, j, white);
+            }
+            else if (big_sphere.intersect(r)) {
+                fb.setPixelColor(i, j, red);
             }
             else {
                 fb.setPixelColor(i, j, background_color);
