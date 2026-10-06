@@ -46,17 +46,6 @@ class vec3 {
     }
 };
 
-// operator definition for testing
-inline bool operator==(const vec3& a, const vec3& b) {
-    return a.x() == b.x() &&
-           a.y() == b.y() &&
-           a.z() == b.z();
-}
-
-inline bool operator!=(const vec3& a, const vec3& b) {
-    return !(a == b);
-}
-
 // point3 is just an alias for vec3, but useful for geometric clarity in the code.
 using point3 = vec3;
 
@@ -108,4 +97,3 @@ inline vec3 unit_vector(const vec3& v) {
 }
 
 #endif
-

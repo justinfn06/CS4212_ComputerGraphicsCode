@@ -1,117 +1,29 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
-#include "color.h"
 #include "ray.h"
-#include "vec3.h"
 
-#include <algorithm>
-#include <cmath>
-
-// Camera Class ===========================================================================
-
-// The camera class is a abstract base class that defines the way rays are generated
-// for a given pixel (i, j) in the image plane. It provides an interface for generating rays based on pixel coordinates.
-class Camera {
+class Camera
+{
 public:
-    virtual ray generateRay(int i, int j) const = 0;
+  Camera();
+  Camera(int pixel_nx, int pixel_ny);
+  Camera(vec3 position, vec3 viewDir, vec3 upDir, float focal_length, float image_plane_width, float image_plane_height, int pixel_nx, int pixel_ny);
 
-    virtual void generateRay(int i, int j, ray& r) const {
-        r = generateRay(i, j);
-    }
+  virtual ray generateRay(int i, int j) = 0;
+
+protected:
+  // position of the camera
+  vec3 pos;
+
+  // the camera's basis vectors
+  vec3 U, V, W;
+
+  // focal length
+  float focalLength;
+
+  // imageplane dimensions
+  float imagePlaneWidth, imagePlaneHeight;
+
+  // number of pixels in x and y direction
+  int nx, ny;
 };
-
-
-
-// Perspective Camera Class ===========================================================================
-
-class PerspectiveCamera : public Camera {
-public:
-    // default constructor initializes the camera with default parameters
-    PerspectiveCamera()
-        : PerspectiveCamera(point3(0.0, 0.0, 0.0),
-                           point3(0.0, 0.0, -1.0),
-                           2.0,
-                           2.0 / (16.0 / 9.0),
-                           1.0,
-                           400,
-                           225,
-                           vec3(0.0, 1.0, 0.0)) {}
-
-        PerspectiveCamera(
-            point3 camera_position,
-            point3 view_direction,
-            double image_plane_width,
-            double image_plane_height,
-            double focal_length,
-            int image_width,
-            int image_height,
-            vec3 vup = vec3(0.0, 1.0, 0.0))
-
-                : camera_position_(camera_position),
-                    image_width_(image_width),
-                    image_height_(image_height),
-                    vup_(vup),
-                    view_direction_(view_direction),
-                    focal_length_(focal_length) {
-                // compute aspect ratio from provided image resolution
-                aspect_ratio_ = static_cast<double>(image_width_) / static_cast<double>(image_height_);
-
-                double viewport_width = image_plane_width;
-                double viewport_height = image_plane_height;
-
-                auto w = unit_vector(camera_position_ - view_direction_);
-                auto u = unit_vector(cross(vup_, w));
-                auto v = cross(w, u);
-
-                viewport_u_ = viewport_width * u;
-                viewport_v_ = -viewport_height * v; // flip vertically to match orientation
-                lower_left_corner_ = camera_position_ - viewport_u_ / 2.0 - viewport_v_ / 2.0 - focal_length_ * w;
-                pixel_delta_u_ = viewport_u_ / static_cast<double>(image_width_);
-                pixel_delta_v_ = viewport_v_ / static_cast<double>(image_height_);
-        }
-
-    const point3& camera_position() const { return camera_position_; }
-    const vec3& viewport_u() const { return viewport_u_; }
-    const vec3& viewport_v() const { return viewport_v_; }
-    const point3& lower_left_corner() const { return lower_left_corner_; }
-
-    // Override the base class method to generate a ray for pixel (i, j)
-    ray generateRay(int i, int j) const override {
-        auto pixel_center = lower_left_corner_
-            + (static_cast<double>(i) + 0.5) * pixel_delta_u_
-            + (static_cast<double>(j) + 0.5) * pixel_delta_v_;
-    return ray(camera_position_, pixel_center - camera_position_);
-    }
-
-    // Override the base class method to fill in the ray reference
-    void generateRay(int i, int j, ray& r) const override {
-        r = generateRay(i, j);
-    }
-
-private:
-
-    point3 camera_position_; // camera position
-    point3 view_direction_; // point the camera is looking at
-    vec3 vup_;     // up vector for the camera
-    double aspect_ratio_ = 16.0 / 9.0; // aspect ratio
-    int image_width_ = 400; // image width
-    int image_height_ = 225; // image height
-    double focal_length_ = 1.0; // focal length
-    vec3 viewport_u_ = vec3(0.0, 0.0, 0.0); // viewport horizontal vector
-    vec3 viewport_v_ = vec3(0.0, 0.0, 0.0); // viewport vertical vector
-    point3 lower_left_corner_ = point3(0.0, 0.0, 0.0); // lower left corner of the viewport
-    vec3 pixel_delta_u_ = vec3(0.0, 0.0, 0.0); // this means the change in the u direction per pixel
-    vec3 pixel_delta_v_ = vec3(0.0, 0.0, 0.0); // this means the change in the v direction per pixel
-};
-
-// Utility function to compute the color of a ray based on its direction
-// multiplying by .5 and adding 1 to convert from -1, 1 to 0, 1 which represents the color
-inline color ray_color(const ray& r) {
-    vec3 unit_direction = unit_vector(r.direction());
-    return color(0.5 * (unit_direction.x() + 1.0),
-                 0.5 * (unit_direction.y() + 1.0),
-                 0.5 * (unit_direction.z() + 1.0));
-}
-
-#endif

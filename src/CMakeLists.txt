@@ -2,10 +2,21 @@ add_library (cs4212-util
   ArgumentParsing.cpp ArgumentParsing.h
   handleGraphicsArgs.cpp handleGraphicsArgs.h
   model_obj.cpp model_obj.h
-  ../renderlib/vec3.h
+  ../renderlib/camera.cpp
+  ../renderlib/camera.h
   ../renderlib/color.h
   ../renderlib/Framebuffer.cpp
   ../renderlib/Framebuffer.h
+  ../renderlib/HitStruct.h
+  ../renderlib/perspectiveCamera.cpp
+  ../renderlib/perspectiveCamera.h
+  ../renderlib/ray.h
+  ../renderlib/shape.h
+  ../renderlib/sphere.cpp
+  ../renderlib/sphere.h
+  ../renderlib/triangle.cpp
+  ../renderlib/triangle.h
+  ../renderlib/vec3.h
 )
 
 target_include_directories(cs4212-util PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

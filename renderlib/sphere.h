@@ -1,29 +1,20 @@
-#ifndef SPHERE_H
-#define SPHERE_H
+#pragma once
 
-#include "shape.h"
 #include "vec3.h"
+#include "Shape.h"
 
-class Sphere : public Shape {
+
+class Sphere : public Shape
+{
 public:
-    Sphere(const point3& center, double radius)
-        : center_(center), radius_(radius) {}
+    Sphere(): center(vec3(0, 0, 0)), radius(1.0), color(vec3(1.0, 1.0, 1.0)) {}
+    Sphere(vec3 c, float r): center(c), radius(r), color(vec3(1.0, 1.0, 1.0)) {}
+    Sphere(vec3 c, float r, vec3 col): center(c), radius(r), color(col) {}
 
-    bool intersect(const ray& r) const override {
-        vec3 oc = r.origin() - center_;
-
-        double a = dot(r.direction(), r.direction());
-        double b = 2.0 * dot(oc, r.direction());
-        double c = dot(oc, oc) - radius_ * radius_;
-
-        double discriminant = b * b - 4.0 * a * c;
-
-        return discriminant >= 0.0;
-    }
-
+    bool intersect(const ray& r, float t_min, float& t_max, HitStruct& hit) const override;
+    vec3 getColor() const override;
 private:
-    point3 center_;
-    double radius_;
+    vec3 center;
+    float radius;
+    vec3 color;
 };
-
-#endif

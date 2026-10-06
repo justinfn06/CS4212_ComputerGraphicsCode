@@ -19,7 +19,11 @@ include(Catch)
 # step, we iterate over all the elements within the ${UTESTS} set to
 # compile into an executable.
 # 
-set(UTESTS utest_sphere)
+set(UTESTS
+  utest_Vec3
+  utest_ray
+  utest_sphere
+)
 
 # 
 # For each of the executables named in ${UTESTS}, compile them into a
@@ -27,6 +31,11 @@ set(UTESTS utest_sphere)
 # 
 foreach(uexec ${UTESTS})
   add_executable(${uexec} ${uexec}.cpp)
+
+  if("${uexec}" STREQUAL "utest_sphere")
+    target_sources(${uexec} PRIVATE ${CMAKE_SOURCE_DIR}/renderlib/sphere.cpp)
+  endif()
+
   target_link_libraries(${uexec}
 	PRIVATE
 	Catch2::Catch2WithMain

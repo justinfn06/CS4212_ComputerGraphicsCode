@@ -1,13 +1,12 @@
-#ifndef SHAPE_H
-#define SHAPE_H
+#pragma once
 
+#include "HitStruct.h"
 #include "ray.h"
+#include "vec3.h"
 
-class Shape {
+class Shape
+{
 public:
-    virtual ~Shape() = default;
-
-    virtual bool intersect(const ray& r) const = 0;
+    virtual bool intersect(const ray& r, float t_min, float& t_max, HitStruct& hit) const = 0;
+    virtual vec3 getColor() const = 0;
 };
-
-#endif
