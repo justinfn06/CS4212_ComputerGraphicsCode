@@ -19,7 +19,7 @@ include(Catch)
 # step, we iterate over all the elements within the ${UTESTS} set to
 # compile into an executable.
 # 
-set(UTESTS utest_ray)
+set(UTESTS utest_sphere)
 
 # 
 # For each of the executables named in ${UTESTS}, compile them into a

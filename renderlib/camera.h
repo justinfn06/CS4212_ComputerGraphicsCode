@@ -10,7 +10,7 @@
 
 // Camera Class ===========================================================================
 
-// The camera class is an abstract base class that defines the way rays are generated
+// The camera class is a abstract base class that defines the way rays are generated
 // for a given pixel (i, j) in the image plane. It provides an interface for generating rays based on pixel coordinates.
 class Camera {
 public:
@@ -25,13 +25,9 @@ public:
 
 // Perspective Camera Class ===========================================================================
 
-// The perspective camera has ways to generate rays that simulate a pinhole camera model.
-// It takes into account the camera's position, orientation, field of view, aspect ratio,
-// and focal length to compute the rays that pass through each pixel in the image plane
 class PerspectiveCamera : public Camera {
 public:
     // default constructor initializes the camera with default parameters
-    // default uses a small image plane (width 2.0 units) and an aspect ratio of 16:9
     PerspectiveCamera()
         : PerspectiveCamera(point3(0.0, 0.0, 0.0),
                            point3(0.0, 0.0, -1.0),
@@ -42,7 +38,6 @@ public:
                            225,
                            vec3(0.0, 1.0, 0.0)) {}
 
-        // Additional constructor to match mainCode.cpp usage: specify image plane width/height directly
         PerspectiveCamera(
             point3 camera_position,
             point3 view_direction,
@@ -70,7 +65,7 @@ public:
                 auto v = cross(w, u);
 
                 viewport_u_ = viewport_width * u;
-                viewport_v_ = -viewport_height * v; // flip vertically to match raster orientation
+                viewport_v_ = -viewport_height * v; // flip vertically to match orientation
                 lower_left_corner_ = camera_position_ - viewport_u_ / 2.0 - viewport_v_ / 2.0 - focal_length_ * w;
                 pixel_delta_u_ = viewport_u_ / static_cast<double>(image_width_);
                 pixel_delta_v_ = viewport_v_ / static_cast<double>(image_height_);
@@ -111,8 +106,7 @@ private:
 };
 
 // Utility function to compute the color of a ray based on its direction
-// multiplying by .5 and adding 1 to convert from -1, 1 to 0, 1 which represents
-// the color
+// multiplying by .5 and adding 1 to convert from -1, 1 to 0, 1 which represents the color
 inline color ray_color(const ray& r) {
     vec3 unit_direction = unit_vector(r.direction());
     return color(0.5 * (unit_direction.x() + 1.0),
