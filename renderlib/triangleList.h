@@ -12,15 +12,16 @@ class TriangleList : public Shape
 public:
     TriangleList( const std::vector<float>& values, Shader& material, double scale = 1.0, const vec3& offset = vec3(0, 0, 0)) : Shape(material)
     {
-
-        // 3 floats = 1 vertex
-        auto vertex = [&](std::size_t i) {
-            return scale * vec3(values[i], values[i + 1], values[i + 2]) + offset;
-        };
-
-        // 3 vertex = 1 triangle
         for (std::size_t i = 0; i < values.size(); i += 9) {
-            triangles.emplace_back(vertex(i), vertex(i + 3), vertex(i + 6), material);
+            vec3 a(values[i],     values[i + 1], values[i + 2]);
+            vec3 b(values[i + 3], values[i + 4], values[i + 5]);
+            vec3 c(values[i + 6], values[i + 7], values[i + 8]);
+
+            a = scale * a + offset;
+            b = scale * b + offset;
+            c = scale * c + offset;
+
+            triangles.emplace_back(a, b, c, material);
         }
     }
 
