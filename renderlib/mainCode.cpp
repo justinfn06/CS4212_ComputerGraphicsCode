@@ -72,8 +72,8 @@ color computeRayColor(const ray& r, const Scene& scene) {
 
 // entry point for code.
 int main() {
-    const int width = 600;
-    const int height = 600;
+    const int width = 300;
+    const int height = 300;
     Framebuffer fb(width, height);
     PerspectiveCamera cam(vec3(0, 0, 0), vec3(0, 0, -1), 0.9f, .9f, 0.9f, width, height);
 
