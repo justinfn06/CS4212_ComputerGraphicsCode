@@ -49,6 +49,8 @@ bool Triangle::intersect(const ray &r, float t_min, float &t_max, HitStruct &hit
   hit.t = t;
   hit.point = r.at(t);
   hit.shape = this;
+  hit.normal = unit_vector(cross(vertex_b - vertex_a, vertex_c - vertex_a));
+  hit.viewDir = unit_vector(-r.direction());
 
   return true;
 }

@@ -1,9 +1,11 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include "renderlib/sphere.h"
+#include "renderlib/lambertian.h"
 
 TEST_CASE("Ray misses sphere") {
-    Sphere s(point3(0, 0, -5), 1.0);
+    Lambertian matte(vec3(1, 1, 1));
+    Sphere s(point3(0, 0, -5), 1.0f, matte);
     ray r(point3(0, 2, 0), vec3(0, 0, -1));
 
     float t_max = 1000.0f;
@@ -14,7 +16,8 @@ TEST_CASE("Ray misses sphere") {
 }
 
 TEST_CASE("Ray hits sphere") {
-    Sphere s(point3(0, 0, -5), 1.0);
+    Lambertian matte(vec3(1, 1, 1));
+    Sphere s(point3(0, 0, -5), 1.0f, matte);
     ray r(point3(0, 0, 0), vec3(0, 0, -1));
 
     float t_max = 1000.0f;
@@ -29,7 +32,8 @@ TEST_CASE("Ray hits sphere") {
 }
 
 TEST_CASE("Ray starts inside sphere") {
-    Sphere s(point3(0, 0, 0), 1.0);
+    Lambertian matte(vec3(1, 1, 1));
+    Sphere s(point3(0, 0, 0), 1.0, matte);
     ray r(point3(0, 0, 0), vec3(1, 0, 0));
 
     float t_max = 1000.0f;
