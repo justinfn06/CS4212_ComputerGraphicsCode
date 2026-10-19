@@ -9,7 +9,7 @@ public:
   Camera(int pixel_nx, int pixel_ny);
   Camera(vec3 position, vec3 viewDir, vec3 upDir, float focal_length, float image_plane_width, float image_plane_height, int pixel_nx, int pixel_ny);
 
-  virtual ray generateRay(double i, double j) = 0;
+  virtual ray generateRay(int i, int j) = 0;
 
 protected:
   // position of the camera

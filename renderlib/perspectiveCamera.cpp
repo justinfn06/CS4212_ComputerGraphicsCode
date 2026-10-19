@@ -27,7 +27,7 @@ PerspectiveCamera::PerspectiveCamera(vec3 origin, vec3 viewDir, float focal_leng
     top = imagePlaneHeight / 2.0;
 }
 
-ray PerspectiveCamera::generateRay(double i, double j)
+ray PerspectiveCamera::generateRay(int i, int j)
 {
     float u = left + (right - left) * (i + 0.5) / (float)nx;
     float v = bottom + (top - bottom) * (j + 0.5) / (float)ny;
