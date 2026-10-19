@@ -17,6 +17,7 @@
 #include "normal.h"
 #include "scene.h"
 #include "mirror.h"
+#include "diffuse.h"
 
 double pi = 3.14159265358979323846; // pi. yum.
 
@@ -47,7 +48,7 @@ int main() {
     Lambertian yellow(color(.9, .8, .1));
     Lambertian green(color(.2, .8, .2));
     Lambertian purple(color(.6, .2, .8));
-    Lambertian temp(color(.2, .2, .2));
+    Lambertian temp(color(.2, .8, .2));
     
     BlinnPhong red(color(.8, .1, .1), color(1, 1, 1), 64);
     BlinnPhong blue(color(.1, .2, .8), color(1, 1, 1), 16);
@@ -55,6 +56,8 @@ int main() {
 
     Normal normal;
     Mirror mirror(color(1, 1, 1));
+    // Diffuse diffuse; // not working yet
+    
 
     
     // SHAPES ==========================================================================
@@ -64,7 +67,6 @@ int main() {
     triangle(scene, point3(-4, 0, -6), point3(4, 0, -6), point3(4, 4, -6), mirror); // wall 1
     triangle(scene, point3(-4, 0, -6), point3(4, 4, -6), point3(-4, 4, -6), mirror); // wall 2
     triangle(scene, point3(.9, 1.5, -0.6), point3(1.9, 1.4, -0.6), point3(1.4, 2.2, -1.1), yellow);
-
 
     sphere(scene, point3(-2, 0.8, -3), .8, green);
     sphere(scene, point3(-1.1, 0.6, -1.2), 0.6, red);
@@ -87,11 +89,53 @@ int main() {
 
 
     // MAIN LOOP =======================================================================
+
+    // divide each pixel into grid: samplesPerAxis x samplesPerAxis
+    const int samplesPerAxis = 4;
+    const int samplesPerPixel = samplesPerAxis * samplesPerAxis;
+    const double pixelSamplesScale = 1.0 / samplesPerPixel;
+
+
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; ++y) {
-        std::clog << "\rScanlines remaining: " << (height - y) << ' ' << std::flush;
-        for (int x = 0; x < width; ++x)
-            fb.setPixelColor(x, y, scene.computeRayColor(cam.generateRay(x, y), 4));
+        std::mt19937 generator(
+            static_cast<std::mt19937::result_type>(y) + 1u
+        );
+        std::uniform_real_distribution<double> distribution(0.0, 1.0);
+
+        auto random_double = [&]() {
+            return distribution(generator);
+        };
+
+        std::clog << "\rScanlines remaining: "
+                  << (height - y) << ' ' << std::flush;
+
+        for (int x = 0; x < width; ++x) {
+            color pixelColor(0, 0, 0);
+
+            for (int p = 0; p < samplesPerAxis; ++p) {
+                for (int q = 0; q < samplesPerAxis; ++q) {
+                    // One random sample inside each grid cell.
+                    // Subtract 0.5 because generateRay already adds 0.5.
+                    double offsetX =
+                        (p + random_double()) / samplesPerAxis - 0.5;
+                    double offsetY =
+                        (q + random_double()) / samplesPerAxis - 0.5;
+
+                    ray r = cam.generateRay(
+                        x + offsetX,
+                        y + offsetY
+                    );
+
+                    pixelColor += scene.computeRayColor(r, 4);
+                }
+            }
+
+            fb.setPixelColor(
+                x, y,
+                pixelSamplesScale * pixelColor
+            );
+        }
     }
     fb.exportToPNG("output.png");
     std::cout << "\nSaved output.png\n";

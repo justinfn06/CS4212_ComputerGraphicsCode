@@ -3,9 +3,41 @@
 
 #include <cmath>
 #include <iostream>
+#include <random>
+
+
+inline double random_double() {
+    static thread_local std::mt19937 generator(std::random_device{}());
+    static thread_local std::uniform_real_distribution<double>
+        distribution(0.0, 1.0);
+
+    return distribution(generator);
+}
+
+inline double random_double(double min, double max) {
+    return min + (max - min) * random_double();
+}
+
 
 class vec3 {
   public:
+
+    static vec3 random() {
+        return vec3(
+            random_double(),
+            random_double(),
+            random_double()
+        );
+    }
+
+    static vec3 random(double min, double max) {
+        return vec3(
+            random_double(min, max),
+            random_double(min, max),
+            random_double(min, max)
+        );
+    }
+
     double e[3];
 
     vec3() : e{0,0,0} {}
@@ -99,5 +131,6 @@ inline vec3 unit_vector(const vec3& v) {
 inline vec3 reflect(const vec3& v, const vec3& n) {
     return v - 2 * dot(v, n) * n;
 }
+
 
 #endif
