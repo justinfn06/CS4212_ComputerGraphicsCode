@@ -8,8 +8,8 @@ To run the unit tests, do the following:
 To see the image, do the following:
 1. cd buildVCPkg
 2. cmake --preset=default ..
-3. cmake --build .
-4. .\src\Debug\mainCode.exe
+3. cmake --build . --config Release --target mainCode
+4. .\src\Release\mainCode.exe
 5. Output image is named "rendered_scene.png" in "buildVCPkg"
 
 
