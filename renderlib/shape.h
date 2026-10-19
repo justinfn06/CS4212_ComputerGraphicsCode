@@ -21,9 +21,14 @@ public:
 
     virtual vec3 getColor() const = 0;
 
-    vec3 shade(const HitStruct& hit) const
+    vec3 shade(
+        const HitStruct& hit,
+        const std::vector<LightSample>& lights,
+        const Scene& scene,
+        int depth
+    ) const
     {
-        return shader.rayColor(hit);
+        return shader.rayColor(hit, lights, scene, depth);
     }
 
 private:

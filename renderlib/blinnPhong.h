@@ -11,42 +11,44 @@ public:
           ks(specularColor),
           phongExp(exponent) {}
 
-    vec3 rayColor(const HitStruct& h) override
+    vec3 rayColor(
+        const HitStruct& h,
+        const std::vector<LightSample>& lights,
+        const Scene&,
+        int
+    ) override
     {
-        vec3 toLight = lightPosition - h.point; // toLight is the vector from the hit point to the light source
+        vec3 result(0, 0, 0);
 
-        // if light source is at same position as hit point, return black. 
-        if (toLight.length_squared() == 0.0) {
-            return vec3(0, 0, 0);
+        for (const auto& light : lights) {
+            double nDotL =
+                std::max(0.0, dot(h.normal, light.direction));
+
+            if (nDotL <= 0.0) {
+                continue;
+            }
+
+            vec3 diffuse = kd * nDotL;
+            vec3 specular(0, 0, 0);
+
+            vec3 halfSum = light.direction + h.viewDir;
+
+            if (halfSum.length_squared() >= 1e-12) {
+                vec3 halfVector = unit_vector(halfSum);
+
+                double nDotH =
+                    std::max(0.0, dot(h.normal, halfVector));
+
+                specular = ks * std::pow(nDotH, phongExp);
+            }
+
+            result += (diffuse + specular) * light.intensity;
         }
-
-        vec3 lightDir = unit_vector(toLight);
-        double nDotL = std::max(0.0, dot(h.normal, lightDir)); // nDotL is the cosine of angle between surface normal and light direction
-
-        // no direct illumination when light is behind the surface
-        if (nDotL <= 0.0) {
-            return vec3(0, 0, 0);
-        }
-
-        vec3 diffuse = kd * nDotL;
-        vec3 halfSum = lightDir + h.viewDir;
-
-        if (halfSum.length_squared() < 1e-12) {
-            return diffuse;
-        }
-
-        vec3 halfVector = unit_vector(halfSum);
-        double nDotH =
-            std::max(0.0, dot(h.normal, halfVector));
-
-        vec3 specular = ks * std::pow(nDotH, phongExp);
-
-        return diffuse + specular;
+        return result;
     }
 
 private:
     vec3 kd;
     vec3 ks;
     double phongExp;
-    vec3 lightPosition = vec3(0, 10, 5);
 };

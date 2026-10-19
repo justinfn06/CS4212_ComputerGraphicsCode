@@ -17,6 +17,7 @@ add_library (cs4212-util
   ../renderlib/triangle.cpp
   ../renderlib/triangle.h
   ../renderlib/vec3.h
+  ../renderlib/scene.cpp
 )
 
 target_include_directories(cs4212-util PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -27,3 +28,6 @@ target_link_libraries(cs4212-util PUBLIC PNG::PNG ZLIB::ZLIB)
 
 add_executable(mainCode ../renderlib/mainCode.cpp)
 target_link_libraries(mainCode PRIVATE cs4212-util)
+
+find_package(OpenMP REQUIRED)
+target_link_libraries(mainCode PRIVATE OpenMP::OpenMP_CXX)

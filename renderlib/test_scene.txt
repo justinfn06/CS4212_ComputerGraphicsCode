@@ -1,0 +1,102 @@
+Image:
+size: 500 x 500
+background color: .5 .7 1.0
+anti-aliasing: 10 x 10 jittered samples per pixel (100 rays per pixel)
+max ray depth: 5
+
+Camera:
+position: 0 3 3
+view direction: 0 -0.4 -1
+focal length = 0.4, image plane width = 0.5, image plane height = 0.5
+
+Light1 (upper left):
+position: -5 8 5
+intensity: .7 .6 .45
+
+Light2 (upper right):
+position: 6 6 2
+intensity: .35 .45 .7
+
+
+--- Triangles ---
+
+Shader: Lambertian, diffuse "grey" (.6 .6 .6)
+Ground1:
+a: -50 0 50
+b: 50 0 50
+c: 50 0 -50
+
+Shader: Lambertian, diffuse "grey" (.6 .6 .6)
+Ground2:
+a: -50 0 50
+b: 50 0 -50
+c: -50 0 -50
+
+Shader: Mirror
+Wall1:
+a: -4 0 -6
+b: 4 0 -6
+c: 4 4 -6
+
+Shader: Mirror
+Wall2:
+a: -4 0 -6
+b: 4 4 -6
+c: -4 4 -6
+
+Shader: Lambertian, diffuse "yellow" (.9 .8 .1)
+FloatingTriangle:
+a: 0.9 1.4 -0.6
+b: 1.9 1.4 -0.6
+c: 1.4 2.2 -1.1
+
+
+--- Spheres ---
+
+Shader: Lambertian, diffuse "green" (.2 .8 .2)
+GreenSphere:
+center: -2 0.8 -3
+radius: 0.8
+
+Shader: Blinn-Phong, diffuse "red" (.8 .1 .1), specular (1 1 1), phong exponent 64
+RedSphere:
+center: -1.1 0.6 -1.2
+radius: 0.6
+
+Shader: Normal
+NormalSphere:
+center: 0 0.9 -3.5
+radius: 0.9
+
+Shader: Blinn-Phong, diffuse "blue" (.1 .2 .8), specular (1 1 1), phong exponent 16
+BlueSphere:
+center: 0.3 0.45 -1.6
+radius: 0.45
+
+Shader: Mirror
+MirrorSphere:
+center: 2 1 -3
+radius: 1
+
+Shader: Mirror
+FrontMirrorSphere:
+center: 1.5 0.5 0.3
+radius: 0.5
+
+Shader: Diffuse , albedo "teal" (.2 .7 .7)
+DiffuseSphere:
+center: -1.3 0.45 0.4
+radius: 0.45
+
+
+--- Spheres behind the camera ---
+
+Shader: Blinn-Phong, diffuse "orange" (.95 .5 .1), specular (1 1 1), phong exponent 32
+OrangeSphere:
+center: 0.3 1 5
+radius: 1
+
+Shader: Lambertian, diffuse "purple" (.6 .2 .8)
+PurpleSphere:
+center: 2.4 0.8 4.8
+radius: 0.8
