@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scene.h"
+#include "../scene/scene.h"
 #include "shader.h"
 // not working yet
 

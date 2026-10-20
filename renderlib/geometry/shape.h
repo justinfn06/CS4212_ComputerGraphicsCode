@@ -1,8 +1,8 @@
 #pragma once
 
-#include "HitStruct.h"
-#include "ray.h"
-#include "shader.h"
+#include "../core/HitStruct.h"
+#include "../math/ray.h"
+#include "../materials/shader.h"
 
 class Shape
 {

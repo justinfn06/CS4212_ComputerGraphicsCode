@@ -1,4 +1,4 @@
-#include "Triangle.h"
+#include "triangle.h"
 
 bool Triangle::intersect(const ray &r, float t_min, float &t_max, HitStruct &hit) const
 {

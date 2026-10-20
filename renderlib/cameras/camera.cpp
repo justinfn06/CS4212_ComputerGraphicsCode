@@ -1,4 +1,4 @@
-#include "Camera.h"
+#include "camera.h"
 
 Camera::Camera()
 : pos(vec3(0, 0, 0)),

@@ -1,9 +1,9 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include "shape.h"
-#include "pointLight.h"
-#include "color.h"
+#include "../geometry/shape.h"
+#include "../lighting/pointLight.h"
+#include "../math/color.h"
 
 struct Scene
 {

@@ -1,7 +1,7 @@
 #pragma once
-#include "HitStruct.h"
+#include "../core/HitStruct.h"
 #include <vector>
-#include "lightSample.h"
+#include "../lighting/lightSample.h"
 
 struct Scene;
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "vec3.h"
-#include "color.h"
+#include "../core/vec3.h"
+#include "../math/color.h"
 
 class Framebuffer {
     public:

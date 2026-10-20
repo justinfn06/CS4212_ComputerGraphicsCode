@@ -1,4 +1,4 @@
-#include "Sphere.h"
+#include "sphere.h"
 
 bool Sphere::intersect(const ray& r, float t_min, float& t_max, HitStruct& hit) const
 {

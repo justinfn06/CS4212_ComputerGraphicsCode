@@ -1,7 +1,7 @@
 #pragma once
 
-#include "vec3.h"
-#include "Shape.h"
+#include "../core/vec3.h"
+#include "shape.h"
 
 class Triangle : public Shape
 {
