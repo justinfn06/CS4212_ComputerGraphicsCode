@@ -33,7 +33,7 @@ foreach(uexec ${UTESTS})
   add_executable(${uexec} ${uexec}.cpp)
 
   if("${uexec}" STREQUAL "utest_sphere")
-    target_sources(${uexec} PRIVATE ${CMAKE_SOURCE_DIR}/renderlib/sphere.cpp)
+    target_sources(${uexec} PRIVATE ${CMAKE_SOURCE_DIR}/renderlib/geometry/sphere.cpp)
   endif()
 
   target_link_libraries(${uexec}
