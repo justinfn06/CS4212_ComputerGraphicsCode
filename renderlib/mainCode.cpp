@@ -4,6 +4,7 @@
 #include <limits>
 #include <memory>
 #include <vector>
+#include <omp.h>
 #include <random>
 
 #include "output/Framebuffer.h"
@@ -37,10 +38,10 @@ void sphere(Scene& scene, point3 center, float radius, Shader& material) {
 int main() {
      
 // 1080 * 810
-const int width = 1000;
-const int height = 1000;
+const int width = 1000*4;
+const int height = 1000*4;
 Framebuffer fb(width, height);
-PerspectiveCamera cam(vec3(0, 3, 3), vec3(0, -0.4, -1), 0.4f, 0.5f, 0.5f, width, height);
+PerspectiveCamera cam(vec3(0, 10, 100), vec3(0, -0.4, -1), 0.4f, 0.5f, 0.5f, width, height);
 
   
   
@@ -62,9 +63,9 @@ BlinnPhong orange(color(.95, .5, .1), color(1, 1, 1), 32);
 
 Normal normal;
 
+Mirror redMirror(color(1, 0, 0));
+Mirror blueMirror(color(.7, .7, 1));
 Mirror mirror(color(1, 1, 1));
-
-// Diffuse diffuse; // not working yet
 
 // SHAPES ==========================================================================
 triangle(scene, point3(-50, 0, 50), point3(50, 0, 50), point3(50, 0, -50), grey); // ground 1
@@ -77,9 +78,9 @@ sphere(scene, point3(-2, 0.8, -3), .8, green);
 sphere(scene, point3(-1.1, 0.6, -1.2), 0.6, red);
 sphere(scene, point3(0, 0.9, -3.5), 0.9, normal);
 sphere(scene, point3(0.3, 0.45, -1.6), .45, blue);
-sphere(scene, point3(2, 1, -3), 1, mirror);
-sphere(scene, point3(1.5, 0.5, 0.3), .5, mirror);
-sphere(scene, point3(-1.3, 0.45, 0.4), 0.45, temp); //! diffuse
+sphere(scene, point3(2, 1, -3), 1, redMirror);
+sphere(scene, point3(1.5, 0.5, 0.3), .5, blueMirror);
+sphere(scene, point3(-1.3, 0.45, 0.4), 0.45, temp);
 sphere(scene, point3(0.3, 1, 5), 1, orange);
 sphere(scene, point3(2.4, 0.8, 4.8), 0.8, purple);
 
@@ -94,6 +95,7 @@ scene.lights.emplace_back(point3(6, 6, 2), vec3(.35, .45, .7));
     const double pixelSamplesScale = 1.0 / samplesPerPixel;
 
 
+    std::clog << "\033[?25l"; // lock the cursor because it was being a stupid idiot. DO NOT TOUCH THIS LINE.
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; ++y) {
         std::mt19937 generator(
@@ -105,10 +107,14 @@ scene.lights.emplace_back(point3(6, 6, 2), vec3(.35, .45, .7));
             return distribution(generator);
         };
 
-        std::clog << "\rScanlines remaining: "
-                  << (height - y) << ' ' << std::flush;
+        int percentage = (((height - y) * 100) / height);
+        
+        if (omp_get_thread_num() == 0) {
+            std::clog << "\rpercentage: [%" << percentage << "]   " << std::flush;
+        }
 
         for (int x = 0; x < width; ++x) {
+            
             color pixelColor(0, 0, 0);
 
             for (int p = 0; p < samplesPerAxis; ++p) {
