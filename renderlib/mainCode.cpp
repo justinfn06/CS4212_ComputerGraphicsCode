@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     }
 
     const std::string inputFilename = argv[1];
-    const std::string outputFilename = argc == 3 ? argv[2] : "output.png";
+    const std::string outputFilename = argc == 3 ? argv[2] : "../renderlib/.outputs/output.png";
 
     std::ifstream input(inputFilename);
     json sceneFile;
