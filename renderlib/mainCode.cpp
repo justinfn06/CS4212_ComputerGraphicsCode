@@ -1,14 +1,11 @@
-#include <algorithm>
 #include <cmath>
 #include <iostream>
-#include <limits>
 #include <memory>
 #include <vector>
-#include <omp.h>
 #include <random>
 #include <fstream>
 #include <string>
-#include <stdexcept>
+#include <chrono>
 
 #include "loading/SceneLoader.h"
 #include "loading/SceneParser_JSON.h"
@@ -60,8 +57,8 @@ int main(int argc, char* argv[]) {
     int height = 1000;
 
     if (sceneData.contains("image")) {
-        width = sceneData["image"].value("width", 1000)/4;
-        height = sceneData["image"].value("height", 1000)/4;
+        width = sceneData["image"].value("width", 1000);
+        height = sceneData["image"].value("height", 1000);
     }
 
     Scene scene;
@@ -86,7 +83,8 @@ int main(int argc, char* argv[]) {
     const int samplesPerPixel = samplesPerAxis * samplesPerAxis;
     const double pixelSamplesScale = 1.0 / samplesPerPixel;
 
-
+    const auto renderStart = std::chrono::steady_clock::now();
+    int completedRows = 0;
     std::clog << "\033[?25l"; // lock the cursor because it was being a stupid idiot. DO NOT TOUCH THIS LINE.
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; ++y) {
@@ -98,12 +96,6 @@ int main(int argc, char* argv[]) {
         auto random_double = [&]() {
             return distribution(generator);
         };
-
-        int percentage = (((height - y) * 100) / height);
-        
-        if (omp_get_thread_num() == 0) {
-            std::clog << "\rpercentage: [%" << percentage << "]   " << std::flush;
-        }
 
         for (int x = 0; x < width; ++x) {
             
@@ -130,6 +122,30 @@ int main(int argc, char* argv[]) {
                 pixelSamplesScale * pixelColor
             );
         }
+        #pragma omp critical
+{
+    ++completedRows;
+
+    const int percentage = completedRows * 100 / height;
+
+    const double elapsed =
+        std::chrono::duration<double>(
+            std::chrono::steady_clock::now() - renderStart
+        ).count();
+
+    const double secondsPerRow = elapsed / completedRows;
+
+    const int remainingSeconds = static_cast<int>(
+        std::ceil(secondsPerRow * (height - completedRows))
+    );
+
+    std::clog
+        << "\rProgress: " << percentage << "%"
+        << " | ETA: " << remainingSeconds / 60 << "m "
+        << remainingSeconds % 60 << "s"
+        << "          "
+        << std::flush;
+}
     }
     fb.exportToPNG(outputFilename);
     std::cout << "\nSaved " << outputFilename << '\n';
