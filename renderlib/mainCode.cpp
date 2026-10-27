@@ -6,7 +6,12 @@
 #include <vector>
 #include <omp.h>
 #include <random>
+#include <fstream>
+#include <string>
+#include <stdexcept>
 
+#include "loading/SceneLoader.h"
+#include "loading/SceneParser_JSON.h"
 #include "output/Framebuffer.h"
 #include "cameras/perspectiveCamera.h"
 #include "geometry/sphere.h"
@@ -35,57 +40,44 @@ void sphere(Scene& scene, point3 center, float radius, Shader& material) {
 
 
 // entry point for code.
-int main() {
-     
-// 1080 * 810
-const int width = 1000*4;
-const int height = 1000*4;
-Framebuffer fb(width, height);
-PerspectiveCamera cam(vec3(0, 10, 100), vec3(0, -0.4, -1), 0.4f, 0.5f, 0.5f, width, height);
+int main(int argc, char* argv[]) {
+    if (argc <2 || argc > 3) {
+        std::cerr << "Usage: mainCode.exe <scene.json> [output.png]\n";
+        return 1;
+    }
 
-  
-  
-  
+    const std::string inputFilename = argv[1];
+    const std::string outputFilename = argc == 3 ? argv[2] : "output.png";
 
-// COLOR/SHADER =====================================================================
+    std::ifstream input(inputFilename);
+    json sceneFile;
+    input >> sceneFile;
 
-Scene scene;
-Lambertian grey(color(.6, .6, .6));
-Lambertian yellow(color(.9, .8, .1));
-Lambertian green(color(.2, .8, .2));
-Lambertian purple(color(.6, .2, .8));
-ConstantColor temp(color(.2, .8, .2));
-BlinnPhong red(color(.8, .1, .1), color(1, 1, 1), 64);
-BlinnPhong blue(color(.1, .2, .8), color(1, 1, 1), 16);
-BlinnPhong orange(color(.95, .5, .1), color(1, 1, 1), 32);
+    const auto& sceneData =
+        sceneFile.contains("scene") ? sceneFile["scene"] : sceneFile;
 
-  
+    int width = 1000;
+    int height = 1000;
 
-Normal normal;
+    if (sceneData.contains("image")) {
+        width = sceneData["image"].value("width", 1000)/4;
+        height = sceneData["image"].value("height", 1000)/4;
+    }
 
-Mirror redMirror(color(1, 0, 0));
-Mirror blueMirror(color(.7, .7, 1));
-Mirror mirror(color(1, 1, 1));
+    Scene scene;
 
-// SHAPES ==========================================================================
-triangle(scene, point3(-50, 0, 50), point3(50, 0, 50), point3(50, 0, -50), grey); // ground 1
-triangle(scene, point3(-50, 0, 50), point3(50, 0, -50), point3(-50, 0, -50), grey); // ground 2
-triangle(scene, point3(-4, 0, -6), point3(4, 0, -6), point3(4, 4, -6), mirror); // wall 1
-triangle(scene, point3(-4, 0, -6), point3(4, 4, -6), point3(-4, 4, -6), mirror); // wall 2
-triangle(scene, point3(.9, 1.5, -0.6), point3(1.9, 1.4, -0.6), point3(1.4, 2.2, -1.1), yellow);
+    auto loader = std::make_shared<SceneLoader>(scene, width, height);
 
-sphere(scene, point3(-2, 0.8, -3), .8, green);
-sphere(scene, point3(-1.1, 0.6, -1.2), 0.6, red);
-sphere(scene, point3(0, 0.9, -3.5), 0.9, normal);
-sphere(scene, point3(0.3, 0.45, -1.6), .45, blue);
-sphere(scene, point3(2, 1, -3), 1, redMirror);
-sphere(scene, point3(1.5, 0.5, 0.3), .5, blueMirror);
-sphere(scene, point3(-1.3, 0.45, 0.4), 0.45, temp);
-sphere(scene, point3(0.3, 1, 5), 1, orange);
-sphere(scene, point3(2.4, 0.8, 4.8), 0.8, purple);
+    SceneParser_JSON parser(loader);
+    parser.parseFileData(inputFilename);
 
-scene.lights.emplace_back(point3(-5, 8, 5), vec3(.7, .6, .45));
-scene.lights.emplace_back(point3(6, 6, 2), vec3(.35, .45, .7));
+    std::cout
+        << "Loaded " << scene.shapes.size() << " shapes, "
+        << scene.shaders.size() << " shaders, and "
+        << scene.lights.size() << " lights.\n";
+
+    Framebuffer fb(width, height);
+    PerspectiveCamera& cam = *scene.camera;
 
     // MAIN LOOP =======================================================================
 
@@ -119,8 +111,6 @@ scene.lights.emplace_back(point3(6, 6, 2), vec3(.35, .45, .7));
 
             for (int p = 0; p < samplesPerAxis; ++p) {
                 for (int q = 0; q < samplesPerAxis; ++q) {
-                    // One random sample inside each grid cell.
-                    // Subtract 0.5 because generateRay already adds 0.5.
                     double offsetX =
                         (p + random_double()) / samplesPerAxis - 0.5;
                     double offsetY =
@@ -141,7 +131,7 @@ scene.lights.emplace_back(point3(6, 6, 2), vec3(.35, .45, .7));
             );
         }
     }
-    fb.exportToPNG("output.png");
-    std::cout << "\nSaved output.png\n";
+    fb.exportToPNG(outputFilename);
+    std::cout << "\nSaved " << outputFilename << '\n';
     return 0;
 }

@@ -46,7 +46,7 @@ color Scene::computeRayColor(
     }
 
     if (!hitShape) {
-        return color(0.5, 0.7, 1.0);
+        return backgroundColor;
     }
 
     std::vector<LightSample> visibleLights;

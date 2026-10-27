@@ -18,8 +18,17 @@ target_link_libraries(cs4212-util PRIVATE Boost::program_options)
 target_link_libraries(cs4212-util PUBLIC glm::glm)
 target_link_libraries(cs4212-util PUBLIC PNG::PNG ZLIB::ZLIB)
 
-add_executable(mainCode ../renderlib/mainCode.cpp)
-target_link_libraries(mainCode PRIVATE cs4212-util)
+find_package(nlohmann_json CONFIG REQUIRED)
+
+add_executable(mainCode
+    ../renderlib/mainCode.cpp
+    ../renderlib/loading/SceneParser_JSON.cpp
+)
+
+target_link_libraries(mainCode PRIVATE
+    cs4212-util
+    nlohmann_json::nlohmann_json
+)
 
 find_package(OpenMP REQUIRED)
 target_link_libraries(mainCode PRIVATE OpenMP::OpenMP_CXX)
