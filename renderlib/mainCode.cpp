@@ -27,12 +27,12 @@ double pi = 3.14159265358979323846; // pi. yum.
 
 // helper function to add new triangle
 void triangle(Scene& scene, point3 a, point3 b, point3 c, Shader& material) {
-    scene.shapes.push_back(std::make_unique<Triangle>(a, b, c, material));
+    scene.shapes.push_back(std::make_shared<Triangle>(a, b, c, material));
 }
 
 // helper function to add new sphere
 void sphere(Scene& scene, point3 center, float radius, Shader& material) {
-    scene.shapes.push_back(std::make_unique<Sphere>(center, radius, material));
+    scene.shapes.push_back(std::make_shared<Sphere>(center, radius, material));
 }
 
 
@@ -57,8 +57,8 @@ int main(int argc, char* argv[]) {
     int height = 1000;
 
     if (sceneData.contains("image")) {
-        width = sceneData["image"].value("width", 1000);
-        height = sceneData["image"].value("height", 1000);
+        width = sceneData["image"].value("width", 1000)*4;
+        height = sceneData["image"].value("height", 1000)*4;
     }
 
     Scene scene;
@@ -67,6 +67,7 @@ int main(int argc, char* argv[]) {
 
     SceneParser_JSON parser(loader);
     parser.parseFileData(inputFilename);
+    scene.buildBVH();
 
     std::cout
         << "Loaded " << scene.shapes.size() << " shapes, "
@@ -79,6 +80,7 @@ int main(int argc, char* argv[]) {
     // MAIN LOOP =======================================================================
 
     // divide each pixel into grid: samplesPerAxis x samplesPerAxis
+    // this is used for antialiasing
     const int samplesPerAxis = 4;
     const int samplesPerPixel = samplesPerAxis * samplesPerAxis;
     const double pixelSamplesScale = 1.0 / samplesPerPixel;
@@ -122,30 +124,32 @@ int main(int argc, char* argv[]) {
                 pixelSamplesScale * pixelColor
             );
         }
+
+        // eta calculations
         #pragma omp critical
-{
-    ++completedRows;
+        {
+            ++completedRows;
 
-    const int percentage = completedRows * 100 / height;
+            const int percentage = completedRows * 100 / height;
 
-    const double elapsed =
-        std::chrono::duration<double>(
-            std::chrono::steady_clock::now() - renderStart
-        ).count();
+            const double elapsed =
+                std::chrono::duration<double>(
+                    std::chrono::steady_clock::now() - renderStart
+                ).count();
 
-    const double secondsPerRow = elapsed / completedRows;
+            const double secondsPerRow = elapsed / completedRows;
 
-    const int remainingSeconds = static_cast<int>(
-        std::ceil(secondsPerRow * (height - completedRows))
-    );
+            const int remainingSeconds = static_cast<int>(
+                std::ceil(secondsPerRow * (height - completedRows))
+            );
 
-    std::clog
-        << "\rProgress: " << percentage << "%"
-        << " | ETA: " << remainingSeconds / 60 << "m "
-        << remainingSeconds % 60 << "s"
-        << "          "
-        << std::flush;
-}
+            std::clog
+                << "\rProgress: " << percentage << "%"
+                << " | ETA: " << remainingSeconds / 60 << "m "
+                << remainingSeconds % 60 << "s"
+                << "          "
+                << std::flush;
+        }
     }
     fb.exportToPNG(outputFilename);
     std::cout << "\nSaved " << outputFilename << '\n';

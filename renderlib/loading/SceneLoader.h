@@ -92,10 +92,10 @@ public:
             *scene.shaders.at(desc.shaderNameReference);
 
         if (desc.type == "sphere") {
-            scene.shapes.push_back(std::make_unique<Sphere>(convert(desc.center), desc.radius, shader));
+            scene.shapes.push_back(std::make_shared<Sphere>(convert(desc.center), desc.radius, shader));
         }
         else if (desc.type == "triangle") {
-            scene.shapes.push_back(std::make_unique<Triangle>(convert(desc.v0), convert(desc.v1), convert(desc.v2), shader));
+            scene.shapes.push_back(std::make_shared<Triangle>(convert(desc.v0), convert(desc.v1), convert(desc.v2), shader));
         }
         else {
             throw std::runtime_error(

@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "../geometry/BoundingVolumeNode.h"
 
 #include <limits>
 
@@ -14,20 +15,23 @@ bool Scene::isShadowed(
     float tMax = 1.0f;
     HitStruct shadowHit;
 
-    for (const auto& shape : shapes) {
-        if (shape->intersect(
-                shadowRay, epsilon, tMax, shadowHit)) {
-            return true;
-        }
-    }
-
-    return false;
+    return bvhRoot &&
+           bvhRoot->intersect(
+               shadowRay, epsilon, tMax, shadowHit
+           );
 }
 
-color Scene::computeRayColor(
-    const ray& r,
-    int depth
-) const
+void Scene::buildBVH()
+{
+    if (shapes.empty()) {
+        bvhRoot.reset();
+        return;
+    }
+
+    bvhRoot = std::make_shared<BoundingVolumeNode>(shapes, 0);
+}
+
+color Scene::computeRayColor(const ray& r, int depth) const
 {
     if (depth <= 0) {
         return color(0, 0, 0);
@@ -37,13 +41,7 @@ color Scene::computeRayColor(
     float tMax = std::numeric_limits<float>::max();
 
     HitStruct hit;
-    bool hitShape = false;
-
-    for (const auto& shape : shapes) {
-        if (shape->intersect(r, tMin, tMax, hit)) {
-            hitShape = true;
-        }
-    }
+    const bool hitShape = bvhRoot && bvhRoot->intersect(r, tMin, tMax, hit);
 
     if (!hitShape) {
         return backgroundColor;

@@ -17,8 +17,12 @@ struct Scene
 
     std::unique_ptr<PerspectiveCamera> camera;
 
-    std::vector<std::unique_ptr<Shape>> shapes;
+    std::vector<std::shared_ptr<Shape>> shapes;
     std::vector<PointLight> lights;
+    
+    std::shared_ptr<Shape> bvhRoot;
+
+    void buildBVH();
 
     color backgroundColor{0.0, 0.0, 0.0};
 

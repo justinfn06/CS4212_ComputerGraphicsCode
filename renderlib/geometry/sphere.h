@@ -17,6 +17,24 @@ public:
 
     bool intersect(const ray& r, float t_min, float& t_max, HitStruct& hit) const override;
     vec3 getColor() const override;
+
+    BoundingBox boundingBox() const override
+    {
+        const double extent = std::fabs(radius);
+        const vec3 radiusVector(extent, extent, extent);
+
+        return BoundingBox(
+            center - radiusVector,
+            center + radiusVector
+        );
+    }
+
+    point3 centroid() const override
+    {
+        return center;
+    }
+
+    
 private:
     vec3 center;
     float radius;
