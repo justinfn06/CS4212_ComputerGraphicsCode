@@ -57,8 +57,8 @@ int main(int argc, char* argv[]) {
     int height = 1000;
 
     if (sceneData.contains("image")) {
-        width = sceneData["image"].value("width", 1000)*4;
-        height = sceneData["image"].value("height", 1000)*4;
+        width = sceneData["image"].value("width", 1000)*8;
+        height = sceneData["image"].value("height", 1000)*8;
     }
 
     Scene scene;
