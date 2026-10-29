@@ -39,7 +39,7 @@ int main(void)
     GLFWwindow* window = glfwCreateWindow(
         winWidth,
         winHeight,
-        "My Modified GLFW Example",
+        "GLFW Example",
         NULL,
         NULL
     );
@@ -55,15 +55,16 @@ int main(void)
 
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();
+    
 
     if (err != GLEW_OK) {
         std::cerr << "GLEW Error! glewInit failed, exiting." << std::endl;
         exit(EXIT_FAILURE);
     }
 
+    
     const GLubyte* renderer = glGetString(GL_RENDERER);
     const GLubyte* version = glGetString(GL_VERSION);
-
     std::cout << "Renderer: " << renderer << std::endl;
     std::cout << "OpenGL version supported: " << version << std::endl;
 
@@ -78,28 +79,51 @@ int main(void)
     glGetIntegerv(GL_MAJOR_VERSION, &major_version);
     std::cout << "GL_MAJOR_VERSION: " << major_version << std::endl;
 
+
+
+    GLuint m_triangleVBO[1];
+
+    glGenBuffers(1, m_triangleVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO[0]);
+
+    std::vector<float> host_VertexBuffer{
+        -0.5f, -0.5f, 0.0f, 1.0f, 0.55f, 0.0f,
+        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.0f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f
+    };
+
+    int numBytes = host_VertexBuffer.size() * sizeof(float);
+    glBufferData(GL_ARRAY_BUFFER, numBytes, host_VertexBuffer.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    GLuint m_VAO;
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO[0]);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+    glBindVertexArray(0);
+
+    sivelab::GLSLObject shader;
+    shader.addShader( "vertexShader_passthrough.glsl", sivelab::GLSLObject::VERTEX_SHADER );
+    shader.addShader( "fragmentShader_passthrough.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
+    shader.createProgram();
+    
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         double currentTime = glfwGetTime();
 
-        /*
-         * Make the background color change over time.
-         * sin() produces smooth values between -1 and 1,
-         * so (sin(...) + 1) / 2 converts them to 0 through 1.
-         */
-        float red = static_cast<float>((std::sin(currentTime) + 1.0) / 2.0);
-        float green = static_cast<float>((std::sin(currentTime + 2.0) + 1.0) / 2.0);
-        float blue = static_cast<float>((std::sin(currentTime + 4.0) + 1.0) / 2.0);
-
-        glClearColor(red, green, blue, 1.0f);
-
-        /* Clear the screen */
+        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /* Render your objects here */
+        shader.activate();
+        glBindVertexArray(m_VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(0);
+        shader.deactivate();
 
-        /* Swap the front and back buffers */
         glfwSwapBuffers(window);
 
         /* Poll for and process events */

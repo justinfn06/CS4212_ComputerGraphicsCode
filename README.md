@@ -12,6 +12,11 @@ To see the image, do the following:
 4. .\src\Release\mainCode.exe ..\renderlib\.inputs\blueHourStreet.json ..\renderlib\.outputs\blueHourStreet.png
 5. Output image is named "rendered_scene.png" in "buildVCPkg"
 
+# Running OpenGL
+1. cd OpenGL
+2. cmake --build ..\buildVCPkg --config Debug --target glfwExample
+3. ..\buildVCPkg\OpenGL\Debug\glfwExample.exe
+
 
 # OLD README
 
