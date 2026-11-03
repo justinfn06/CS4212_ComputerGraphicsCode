@@ -75,9 +75,7 @@ int main(void)
     glfwGetFramebufferSize(window, &fb_width, &fb_height);
     glViewport(0, 0, fb_width, fb_height);
 
-    GLint major_version;
-    glGetIntegerv(GL_MAJOR_VERSION, &major_version);
-    std::cout << "GL_MAJOR_VERSION: " << major_version << std::endl;
+    std::cout << "GLFW version: " << glfwGetVersionString() << std::endl;
 
 
 
@@ -87,9 +85,9 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO[0]);
 
     std::vector<float> host_VertexBuffer{
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.55f, 0.0f,
-        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f
+        -0.7f, -0.6f, 0.0f,     1.0f, 0.55f, 0.0f,
+        0.6f, -0.4f, 0.0f,      0.0f, 0.0f,  0.0f,
+        -0.2f,  0.7f, 0.0f,     1.0f, 1.0f,  1.0f
     };
 
     int numBytes = host_VertexBuffer.size() * sizeof(float);
@@ -99,10 +97,16 @@ int main(void)
     GLuint m_VAO;
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
-    glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO[0]);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), nullptr);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+
     glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     sivelab::GLSLObject shader;
     shader.addShader( "vertexShader_passthrough.glsl", sivelab::GLSLObject::VERTEX_SHADER );
