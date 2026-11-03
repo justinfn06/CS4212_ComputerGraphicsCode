@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     }
 
     const std::string inputFilename = argv[1];
-    const std::string outputFilename = argc == 3 ? argv[2] : "../renderlib/.outputs/output.png";
+    const std::string outputFilename = argc == 3 ? argv[2] : "../buildVCPkg/.outputs/output.png";
 
     std::ifstream input(inputFilename);
     json sceneFile;
@@ -57,8 +57,8 @@ int main(int argc, char* argv[]) {
     int height = 1000;
 
     if (sceneData.contains("image")) {
-        width = sceneData["image"].value("width", 1000)*8;
-        height = sceneData["image"].value("height", 1000)*8;
+        width = sceneData["image"].value("width", 1000);
+        height = sceneData["image"].value("height", 1000);
     }
 
     Scene scene;
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 
     // divide each pixel into grid: samplesPerAxis x samplesPerAxis
     // this is used for antialiasing
-    const int samplesPerAxis = 4;
+    const int samplesPerAxis = 16;
     const int samplesPerPixel = samplesPerAxis * samplesPerAxis;
     const double pixelSamplesScale = 1.0 / samplesPerPixel;
 
