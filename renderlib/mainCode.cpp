@@ -50,8 +50,7 @@ int main(int argc, char* argv[]) {
     json sceneFile;
     input >> sceneFile;
 
-    const auto& sceneData =
-        sceneFile.contains("scene") ? sceneFile["scene"] : sceneFile;
+    const auto& sceneData = sceneFile.contains("scene") ? sceneFile["scene"] : sceneFile;
 
     int width = 1000;
     int height = 1000;
