@@ -85,9 +85,10 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO[0]);
 
     std::vector<float> host_VertexBuffer{
-        -0.7f, -0.6f, 0.0f,     1.0f, 0.55f, 0.0f,
-        0.6f, -0.4f, 0.0f,      0.0f, 0.0f,  0.0f,
-        -0.2f,  0.7f, 0.0f,     1.0f, 1.0f,  1.0f
+        // Position               // Color
+        -3.0f, -3.0f, 0.0f,        1.0f, 0.55f, 0.0f,
+         3.0f, -3.0f, 0.0f,        0.0f, 0.0f,  0.0f,
+         0.0f,  3.0f, 0.0f,        1.0f, 1.0f,  1.0f
     };
 
     int numBytes = host_VertexBuffer.size() * sizeof(float);
@@ -109,23 +110,53 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     sivelab::GLSLObject shader;
-    shader.addShader( "vertexShader_passthrough.glsl", sivelab::GLSLObject::VERTEX_SHADER );
+    shader.addShader( "vertexShader_withMatrixTransformation.glsl", sivelab::GLSLObject::VERTEX_SHADER );
     shader.addShader( "fragmentShader_passthrough.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
     shader.createProgram();
+    GLuint projMatrixID, viewMatrixID;
+    projMatrixID = shader.createUniform("projMatrix");
+    viewMatrixID = shader.createUniform("viewMatrix");
+
+    // orthographic
+    float halfWidth = 15.0 / 2.0;
+    float halfHeight = halfWidth;
+
+    float left = -halfWidth;
+    float right = halfWidth;
+
+    float bottom = -halfHeight;
+    float top = halfHeight;
+
+    float near = 5.0f;
+    float far = -5.0f;
+
+    glm::mat4 M_ortho = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, near, far);
+
+    glm::vec3 m_pos(0,0,0), m_viewDir(0,0,-1);
+    glm::vec3 m_U(1,0,0), m_V(0,1,0), m_W(0,0,1);
+
+    double timeDiff = 0.0, startFrameTime = 0.0, endFrameTime = 0.0;
     
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        double currentTime = glfwGetTime();
+        startFrameTime = glfwGetTime();
 
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::mat4 M_view = glm::lookAt(m_pos, m_pos - m_W, m_V);
+
         shader.activate();
+
+        glUniformMatrix4fv(projMatrixID, 1, GL_FALSE, glm::value_ptr(M_ortho));
+        glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, glm::value_ptr(M_view));
+
         glBindVertexArray(m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
+
         shader.deactivate();
 
         glfwSwapBuffers(window);
@@ -133,20 +164,32 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
 
+        float moveRatePerFrame = 0.005f;
+
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            m_pos = m_pos + -m_W * moveRatePerFrame;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            m_pos = m_pos - m_U * moveRatePerFrame;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            m_pos = m_pos + m_W * moveRatePerFrame;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            m_pos = m_pos + m_U * moveRatePerFrame;
+        }
+
         /* Press T to display FPS */
         if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
-            static double lastPrintTime = 0.0;
-
-            if (currentTime - lastPrintTime > 0.25) {
-                std::cout << "Time: " << currentTime << " seconds" << std::endl;
-                lastPrintTime = currentTime;
-            }
+            std::cout << "fps: " << 1.0 / timeDiff << std::endl;
         }
 
         /* Press Escape to close */
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(window, 1);
         }
+        endFrameTime = glfwGetTime();
+        timeDiff = endFrameTime - startFrameTime;
     }
 
     glfwTerminate();
