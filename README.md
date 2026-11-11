@@ -11,7 +11,8 @@ To see the image, do the following:
 3. cmake --build . --config Release --target mainCode
 4. .\src\Release\mainCode.exe ..\renderlib\.inputs\myScenes\blueHourStreet.json ..\renderlib\.outputs\blueHourStreet.png
 5. or to time it: Measure-Command { .\src\Release\mainCode.exe ..\renderlib\.inputs\otherScenes\spheres_1K.json}
-6. Output image is named "rendered_scene.png" in "buildVCPkg"
+6. or if on linux: ./src/mainCode ../renderlib/.inputs/otherScenes/spheres_1K.json ./spheres_1K.png
+7. Output image is named "rendered_scene.png" in "buildVCPkg"
 
 
 # OLD README
