@@ -1,0 +1,37 @@
+{
+  "scene": {
+    "image": {
+      "width": 300,
+      "height": 300
+    },
+    "sceneParameters": {
+      "bgColor": [0.08, 0.08, 0.08]
+    },
+    "camera": [
+      {
+        "type": "perspective",
+        "name": "main",
+        "position": [0, 0, 4],
+        "lookatPoint": [0, 0, 0],
+        "focalLength": 1.0,
+        "imagePlaneWidth": 0.8
+      }
+    ],
+    "shader": [
+      {
+        "type": "Normal",
+        "name": "scanMaterial"
+      }
+    ],
+    "shape": [
+      {
+        "type": "mesh",
+        "name": "phoneScan",
+        "file": "../mesh/heller/scan.obj",
+        "shader": {
+          "ref": "scanMaterial"
+        }
+      }
+    ]
+  }
+}

@@ -11,6 +11,9 @@
 #include "../materials/mirror.h"
 #include "../materials/normal.h"
 #include "../materials/constantColor.h"
+#include "model_obj.h"
+#include <algorithm>
+#include <limits>
 
 class SceneLoader : public ISceneLoader
 {
@@ -96,6 +99,59 @@ public:
         }
         else if (desc.type == "triangle") {
             scene.shapes.push_back(std::make_shared<Triangle>(convert(desc.v0), convert(desc.v1), convert(desc.v2), shader));
+        }
+        else if (desc.type == "mesh") {
+            ModelOBJ model;
+
+            if (!model.import(desc.meshFilePath.c_str())) {
+                throw std::runtime_error(
+                    "Could not load mesh: " + desc.meshFilePath);
+            }
+
+            const int count = model.getNumberOfIndices();
+            if (count == 0) {
+                throw std::runtime_error("Mesh contains no triangles");
+            }
+
+            auto position = [&](int index) {
+                const auto& p = model.getVertex(index).position;
+                return vec3(p[0], p[1], p[2]);
+            };
+
+            const double infinity = std::numeric_limits<double>::infinity();
+            vec3 minimum(infinity, infinity, infinity);
+            vec3 maximum(-infinity, -infinity, -infinity);
+
+            for (int i = 0; i < model.getNumberOfVertices(); ++i) {
+                const vec3 p = position(i);
+                for (int axis = 0; axis < 3; ++axis) {
+                    minimum[axis] = std::min(minimum[axis], p[axis]);
+                    maximum[axis] = std::max(maximum[axis], p[axis]);
+                }
+            }
+
+            const vec3 center = (minimum + maximum) / 2.0;
+            const vec3 size = maximum - minimum;
+            const double largest = std::max({size[0], size[1], size[2]});
+
+            if (largest <= 0.0) {
+                throw std::runtime_error("Mesh has no usable size");
+            }
+
+            const double scale = 2.0 / largest;
+            const int* indices = model.getIndexBuffer();
+
+            for (int i = 0; i < count; i += 3) {
+                const vec3 a = (position(indices[i]) - center) * scale;
+                const vec3 b = (position(indices[i + 1]) - center) * scale;
+                const vec3 c = (position(indices[i + 2]) - center) * scale;
+
+                if (cross(b - a, c - a).length_squared() <= 1e-20)
+                    continue;
+
+                scene.shapes.push_back(
+                    std::make_shared<Triangle>(a, b, c, shader));
+            }
         }
         else {
             throw std::runtime_error(
