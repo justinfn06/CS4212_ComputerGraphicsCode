@@ -152,5 +152,7 @@ int main(int argc, char* argv[]) {
     }
     fb.exportToPNG(outputFilename);
     std::cout << "\nSaved " << outputFilename << '\n';
+    // show cursor again
+    std::clog << "\033[?25h";
     return 0;
 }
