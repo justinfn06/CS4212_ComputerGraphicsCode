@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 
     // divide each pixel into grid: samplesPerAxis x samplesPerAxis
     // this is used for antialiasing
-    const int samplesPerAxis = 16;
+    const int samplesPerAxis = 5;
     const int samplesPerPixel = samplesPerAxis * samplesPerAxis;
     const double pixelSamplesScale = 1.0 / samplesPerPixel;
 
