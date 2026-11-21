@@ -77,18 +77,16 @@ int main(void)
 
     std::cout << "GLFW version: " << glfwGetVersionString() << std::endl;
 
-
-
     GLuint m_triangleVBO[1];
 
     glGenBuffers(1, m_triangleVBO);
     glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO[0]);
 
     std::vector<float> host_VertexBuffer{
-        // Position               // Color
-        -3.0f, -3.0f, 0.0f,        1.0f, 0.55f, 0.0f,
-         3.0f, -3.0f, 0.0f,        0.0f, 0.0f,  0.0f,
-         0.0f,  3.0f, 0.0f,        1.0f, 1.0f,  1.0f
+        // Position               // normal
+        -3.0f, -3.0f, 0.0f,        0.0f, 0.0f, 1.0f,
+         3.0f, -3.0f, 0.0f,        0.0f, 0.0f,  1.0f,
+         0.0f,  3.0f, 0.0f,        0.0f, 0.0f,  1.0f
     };
 
     int numBytes = host_VertexBuffer.size() * sizeof(float);
@@ -110,12 +108,28 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     sivelab::GLSLObject shader;
-    shader.addShader( "vertexShader_withMatrixTransformation.glsl", sivelab::GLSLObject::VERTEX_SHADER );
-    shader.addShader( "fragmentShader_passthrough.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
-    shader.createProgram();
-    GLuint projMatrixID, viewMatrixID;
-    projMatrixID = shader.createUniform("projMatrix");
-    viewMatrixID = shader.createUniform("viewMatrix");
+
+    shader.addShader("vertexShader_PrepForPerFragment.glsl", sivelab::GLSLObject::VERTEX_SHADER);
+
+    shader.addShader("fragmentShader_BlinnPhong.glsl", sivelab::GLSLObject::FRAGMENT_SHADER);
+
+    if (shader.createProgram() == 0) {
+        std::cerr << "Shader program linking failed.\n";
+        return -1;
+    }
+
+    GLint projMatrixID = shader.createUniform("projMatrix");
+    GLint viewMatrixID = shader.createUniform("viewMatrix");
+    GLint modelMatrixID = shader.createUniform("modelMatrix");
+    GLint normalMatrixID = shader.createUniform("normalMatrix");
+    GLint lightPosWorldID = shader.createUniform("lightPosWorld");
+    GLint diffuseComponentID = shader.createUniform("diffuseComponent");
+    GLint specularComponentID = shader.createUniform("specularComponent");
+    GLint phongExponentID = shader.createUniform("phongExponent");
+    GLint viewDirWorldID = shader.createUniform("viewDirWorld");
+    shader.createUniform("viewDirWorld");
+
+
 
     // orthographic
     float halfWidth = 15.0 / 2.0;
@@ -127,12 +141,12 @@ int main(void)
     float bottom = -halfHeight;
     float top = halfHeight;
 
-    float near = 5.0f;
-    float far = -5.0f;
+    float near = 0.1f;
+    float far = 30.0f;
 
     glm::mat4 M_ortho = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, near, far);
 
-    glm::vec3 m_pos(0,0,0), m_viewDir(0,0,-1);
+    glm::vec3 m_pos(0,0,10), m_viewDir(0,0,-1);
     glm::vec3 m_U(1,0,0), m_V(0,1,0), m_W(0,0,1);
 
     double timeDiff = 0.0, startFrameTime = 0.0, endFrameTime = 0.0;
@@ -150,8 +164,22 @@ int main(void)
 
         shader.activate();
 
+        glm::mat4 M_model(1.0f);
+        glm::mat4 M_normal = glm::transpose(glm::inverse(M_model));
+
         glUniformMatrix4fv(projMatrixID, 1, GL_FALSE, glm::value_ptr(M_ortho));
+
         glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, glm::value_ptr(M_view));
+
+        glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(M_model));
+
+        glUniformMatrix4fv(normalMatrixID, 1, GL_FALSE, glm::value_ptr(M_normal));
+
+        glUniform4f(lightPosWorldID, 0.0f, 0.0f, 2.0f, 1.0f);
+        glUniform3f(diffuseComponentID, 0.5f, 0.15f, 0.05f);
+        glUniform3f(specularComponentID, 0.7f, 0.7f, 0.7f);
+        glUniform1f(phongExponentID, 32.0f);
+        glUniform4f(viewDirWorldID,m_W.x, m_W.y, m_W.z, 0.0f);
 
         glBindVertexArray(m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
