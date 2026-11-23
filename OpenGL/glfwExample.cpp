@@ -111,7 +111,7 @@ int main(void)
 
     shader.addShader("vertexShader_PrepForPerFragment.glsl", sivelab::GLSLObject::VERTEX_SHADER);
 
-    shader.addShader("fragmentShader_BlinnPhong.glsl", sivelab::GLSLObject::FRAGMENT_SHADER);
+    shader.addShader("fragmentShader_Normal.glsl", sivelab::GLSLObject::FRAGMENT_SHADER);
 
     if (shader.createProgram() == 0) {
         std::cerr << "Shader program linking failed.\n";
@@ -192,7 +192,7 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
 
-        float moveRatePerFrame = 0.005f;
+        float moveRatePerFrame = 0.05f;
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             m_pos = m_pos + -m_W * moveRatePerFrame;
